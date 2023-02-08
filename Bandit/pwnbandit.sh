@@ -25,6 +25,7 @@ LEVELS=14
 for ((level=0;level<=LEVELS;level++)); do
     if [ -f "$PAYLOADS_DIR/bandit$level.sh" ]; then
         expect $CURRENT_DIR/expect.exp bandit$level $(readLastFlag) $PAYLOADS_DIR/bandit$level.sh
+        echo "Bandit flag for level $level retrieved with success!"
     else
         echo -e "$RED The payload for level $level does not exists with name bandit$level.sh"
     fi

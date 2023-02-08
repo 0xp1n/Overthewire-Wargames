@@ -1,0 +1,14 @@
+#!/usr/bin/env expect -f
+
+log_user 0
+set timeout 15
+
+set user [lindex $argv 0]
+set password [lindex $argv 1]
+set payload [lindex $argv 2]
+
+spawn bash -c "ssh -p 2223 $user@leviathan.labs.overthewire.org bash -s < $payload >> leviathan_flags.txt" 
+
+expect "assword:"
+send "$password\r"
+interact
