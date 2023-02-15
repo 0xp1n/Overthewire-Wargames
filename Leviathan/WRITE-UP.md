@@ -12,7 +12,7 @@ This one I didn't understand at all but seems like printfile binary is executed 
 The technique here is create a file with a space like
 
 ```bash
-touch /tmp/user/"pass word.txt"
+mkdir -p /tmp/user ; touch /tmp/user/"pass word.txt"
 
 ltrace ~/printfile /tmp/user/"pass word.txt"
 

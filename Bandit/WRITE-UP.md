@@ -587,7 +587,7 @@ This level is not complicated as the other ones, if you list the files after con
 
 ```bash
 # Don't use the -p flag to define the port, is not needed in connection.
-ssh -i ./sshkey.private bandit14@localhost
+ssh -p 2220 -i ~/sshkey.private bandit14@localhost
 
 # Once inside the machine we have the path from definition of level 13 to get the password
 cat /etc/bandit_pass/bandit14
@@ -613,7 +613,7 @@ Once we confirm the port is open, `netcat` comes to the rescue to make a connect
 ```bash
 cat /etc/bandit_pass/bandit14 | nc localhost 30000
 # Correct!
-BfMYroe26WYalil77FoDi9qh59eK5xN
+jN2kgmIXJ6fShzhT2avhotn4Zcka6tnt
 ```
 
 `telnet`is another way to make a connection on the port, this time you need to copy the password when prompt is ready:
@@ -645,6 +645,18 @@ openssl s_client -connect 127.0.0.1:30001
 # Level 16
 
 The credentials for the next level can be retrieved by submitting the password of the current level to a port on localhost in the range 31000 to 32000. First find out which of these ports have a server listening on them. Then find out which of those speak SSL and which don’t. There is only 1 server that will give the next credentials, the others will simply send back to you whatever you send to it.
+
+The bash scripting approach inside the bandit server:
+
+```bash
+#!/usr/bin/env bash
+
+echo "Starting port scanning..."
+
+for port in $(seq 31000 32000); do
+        (echo '' > /dev/tcp/127.0.0.1/$port) 2>/dev/null && echo "[+] PORT $port - OPEN"
+done
+```
 
 Scanning ports is the key here, fortunately we have available the nmap tool on this serve so se can take advantage of it for our purpose on getting the password for the next level.
 
@@ -688,6 +700,8 @@ As we see here we have 5 ports opened on this range, now is just trying manually
 ```bash
 # Using the openssl command as we did in the last level we could know which one speak SSL
 openssl s_client -connect 127.0.0.1:<PORT_YOU_WANT_TRY>
+#Or
+ncat --ssl 127.0.0.1 <PORT_YOU_WANT_TRY>
 ```
 
 Once you detect the SSL port just paste the actual level password and you'll receive a ssh private key
@@ -913,7 +927,7 @@ Exiting
 
 Logging in to bandit26 from bandit25 should be fairly easy… The shell for user bandit26 is not /bin/bash, but something else. Find out what it is, how it works and how to break out of it.
 
-This level is to practice on the concept of 'jail shell', in this case we're going to take in advantage the more command the is using the actual bash of bandit26. If we take a look what bash this user have we must see:
+This level is to practice on the concept of 'jail shell', in this case we're going to take in advantage the `more` command the is using the actual bash of bandit26. If we take a look what bash this user have we must see:
 
 ```bash
 cat /etc/passwd | grep bandit26
@@ -969,14 +983,14 @@ There is a git repository at ssh://bandit27-git@localhost/home/bandit27-git/repo
 The first thing that comes into your mind is connect directly via ssh into this address but if you try that the connection will be closed but a message appears sharing the information that a git shell interactive is available so we can run commands into this address, let's do a clone:
 
 ```bash
-git clone ssh://bandit27-git@localhost/home/bandit27-git/rep
+git clone ssh://bandit27-git@localhost:2220/home/bandit27-git/rep
 ```
 
 Inside this repo there is a README file where we can find the password for the next level
 
 # Level 28
 
-There is a git repository at ssh://bandit28-git@localhost/home/bandit28-git/repo. The password for the user bandit28-git is the same as for the user bandit28.
+There is a git repository at ssh://bandit28-git@localhost:2220/home/bandit28-git/repo. The password for the user bandit28-git is the same as for the user bandit28.
 
 Clone the repository and find the password for the next level
 
@@ -990,7 +1004,7 @@ git log -p
 
 # Level 29
 
-There is a git repository at ssh://bandit29-git@localhost/home/bandit29-git/repo. The password for the user bandit29-git is the same as for the user bandit29.
+There is a git repository at ssh://bandit29-git@localhost:2220/home/bandit29-git/repo. The password for the user bandit29-git is the same as for the user bandit29.
 
 Clone the repository and find the password for the next level.
 
@@ -1004,7 +1018,7 @@ And you'll see the password, magic
 
 # Level 30
 
-There is a git repository at ssh://bandit30-git@localhost/home/bandit30-git/repo. The password for the user bandit30-git is the same as for the user bandit30.
+There is a git repository at ssh://bandit30-git@localhost:2220/home/bandit30-git/repo. The password for the user bandit30-git is the same as for the user bandit30.
 
 Clone the repository and find the password for the next level.
 
@@ -1018,7 +1032,7 @@ git show secret
 
 # Level 31
 
-There is a git repository at ssh://bandit31-git@localhost/home/bandit31-git/repo. The password for the user bandit31-git is the same as for the user bandit31.
+There is a git repository at ssh://bandit31-git@localhost:2220/home/bandit31-git/repo. The password for the user bandit31-git is the same as for the user bandit31.
 
 Clone the repository and find the password for the next level.
 
@@ -1041,7 +1055,7 @@ git push origin master
 
 After all this git stuff its time for another escape. Good luck!
 
-Here we can see an uppercase shell that transform all our command into uppercase so we always get a <COMMAND>: not found. To escape from this we can spawn a new shell with
+Here we can see an uppercase shell that transform all our command into uppercase so we always get a <COMMAND>: not found. To escape from this we can spawn a new shell with `$0` as it represents the actual terminal session.
 
 ```bash
 $0

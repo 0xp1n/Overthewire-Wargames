@@ -28,6 +28,7 @@ for ((level=0;level<=LEVELS;level++)); do
         echo "Bandit flag for level $level retrieved with success!"
     else
         echo -e "$RED The payload for level $level does not exists with name bandit$level.sh"
+        exit 1
     fi
 done
 

@@ -26,6 +26,7 @@ for ((level=0;level<=LEVELS;level++)); do
         echo "Leviathan flag for level $level retrieved with success!"
     else
         echo -e "$RED The payload for level $level does not exists with name leviathan$level.sh"
+        exit 1
     fi
 done
 
