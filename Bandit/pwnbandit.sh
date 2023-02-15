@@ -6,14 +6,14 @@ PAYLOADS_DIR=$CURRENT_DIR/payloads
 RED='\033[0;31m' # foreground red
 
 # Apply execute permissions on payloads
-chmod -R u+x $CURRENT_DIR/**/*.sh
+chmod -R u+x "$CURRENT_DIR"/**/*.sh
 
 # Empty the flag file to star the process again
-truncate -s 0 $CURRENT_DIR/bandit_flags.txt
+truncate -s 0 "$CURRENT_DIR"/bandit_flags.txt
 
 function readLastFlag() {
-    if [ -s $CURRENT_DIR/bandit_flags.txt ]; then
-        echo $(cat ./bandit_flags.txt | tail -n 1) 
+    if [ -s "$CURRENT_DIR"/bandit_flags.txt ]; then
+        cat ./bandit_flags.txt | tail -n 1
     else
         echo "bandit0"
     fi
@@ -24,7 +24,7 @@ LEVELS=14
 
 for ((level=0;level<=LEVELS;level++)); do
     if [ -f "$PAYLOADS_DIR/bandit$level.sh" ]; then
-        expect $CURRENT_DIR/expect.exp bandit$level $(readLastFlag) $PAYLOADS_DIR/bandit$level.sh
+        expect "$CURRENT_DIR"/expect.exp bandit$level $(readLastFlag) "$PAYLOADS_DIR"/bandit$level.sh
         echo "Bandit flag for level $level retrieved with success!"
     else
         echo -e "$RED The payload for level $level does not exists with name bandit$level.sh"
