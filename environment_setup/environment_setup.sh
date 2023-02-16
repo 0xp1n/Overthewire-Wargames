@@ -18,6 +18,7 @@ endColour='\033[0m'
 # Auto detect the package manager for the target OS
 package_manager=$(whichPackageManager)
 target_home_config_dir="$HOME/.config"
+system_architecture=$(uname -m)
 
 echo -e "${yellowColour}The package manager for the entire installation will be${endColour} ${cyanColour}$package_manager${endColour}"
 
@@ -57,8 +58,22 @@ function setupAndConfigureKitty() {
     echo -e "${grayColour}Installing and configuring kitty GPU based terminal...${endColour}"
 
     local kitty_dir=/opt/kitty
+    local base_url=https://github.com/kovidgoyal/kitty/releases/download/v0.27.1
+    local kitty_release=''
 
-    curl -sLo kitty.txz "https://github.com/kovidgoyal/kitty/releases/download/v0.27.1/kitty-0.27.1-x86_64.txz"
+    case $system_architecture in
+        arm64 | aarch64)
+            kitty_release="kitty-0.27.1-arm64.txz"
+        ;;
+        64-bit | x86_64)
+            kitty_release="kitty-0.27.1-x86_64.txz"
+        ;;
+        i386| i486| i586| i686)
+        kitty_release="kitty-0.27.1-i686.txz"
+        ;;
+    esac
+    
+    curl -sLo kitty.txz "$base_url/$kitty_release"
     sudo mkdir -p $kitty_dir && sudo tar -xf kitty.txz -C $kitty_dir && rm kitty.txz
     sudo ln -s $kitty_dir/bin/kitty /usr/local/bin/kitty
 
