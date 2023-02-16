@@ -32,7 +32,10 @@ function showHelpPanel() {
 
 function searchMachine() {
     machine=$1
-    echo -e "Looking for $machine..."
+    # This search command find for the name of the machine while showing rest of the properties until match line 'youtube:' 
+    # and then remove the 'id' and 'sku' fields plus removing the quotes, commas and leading blank spaces
+    awk "/name: \"$machine\"/,/youtube:/" htbmachines.bundle.js | grep -vE "id:|sku:" | tr -d '",' | sed 's/^ *//g'
+
 }
 
 function updateHTBMachines() {
@@ -40,14 +43,14 @@ function updateHTBMachines() {
     SECONDS=0
 
      if [ -f "htbmachines.bundle.js" ]; then
-        echo -e "${yellowColour}Se ha detectado un archivo htbmachines.bundle.js, actualizando...${endColour}"
+        echo -e "${yellowColour}Se ha detectado un archivo htbmachines.bundle.js, se procederá a sobreescribir su contenido...${endColour}\n"
     fi
    
     echo -e "${greenColour}Descargando y actualizando datos de máquinas...${endColour}"
     curl -sX GET $source/bundle.js | js-beautify > htbmachines.bundle.js
     duration=$SECONDS
 
-    echo -e "\n${greenColour}Finalizado con éxito en $((duration / 60)) minutes and $((duration % 60)) seconds${endColour}"
+    echo -e "${greenColour}Finalizado con éxito en $((duration / 60)) minutes and $((duration % 60)) seconds${endColour}"
 
     showCursor
 }
