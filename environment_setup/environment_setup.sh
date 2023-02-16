@@ -21,27 +21,6 @@ target_home_config_dir="$HOME/.config"
 
 echo -e "${yellowColour}The package manager for the entire installation will be${endColour} ${cyanColour}$package_manager${endColour}"
 
-function setupHotkeys() {
-    #  REMEMBER TO UNCOMMENT THIS ON THE LINUX TARGET SYSTEM
-    #$package_manager sxhkdrc
-    backupTargetConfigurationFolder
-
-    echo -e "${grayColour}Copying sxhkd configuration files in order to setup hotkeys...${endColour}"
-    cp -r "$CURRENT_DIR/config/sxhkd" "$target_home_config_dir"
-    echo -e "${greenColour} Hotkeys installed and configured with${endColour} ${cyanColour}[ sxhkd ]${endColour}"
-}
-
-function setupCustomTerminalFont() {
-    echo -e "${grayColour}Downloading HackNerdFont from${endColour} ${blueColour}https://github.com/ryanoasis/nerd-fonts/${endColour}"
-   
-    local fonts_dir="$HOME/.fonts"
-    mkdir -p "$fonts_dir"
-    curl -sLo Hack.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v2.3.3/Hack.zip && unzip -q Hack.zip -d "$fonts_dir" && rm Hack.zip
-
-    echo -e "${greenColour} Fonts installed and configured in${endColour} ${cyanColour}[ $fonts_dir ]${endColour}"
-
-}
-
 function backupTargetConfigurationFolder() {
     if [ -d "$target_home_config_dir" ]; then
         local -r config_backup_folder=$target_home_config_dir/backup/${USER}.config
@@ -51,8 +30,46 @@ function backupTargetConfigurationFolder() {
         mkdir -p "$config_backup_folder" && cp -r "$target_home_config_dir" "$config_backup_folder"
     fi
 }
+
+function setupHotkeys() {
+    #  REMEMBER TO UNCOMMENT THIS ON THE LINUX TARGET SYSTEM
+    #$package_manager sxhkdrc
+    backupTargetConfigurationFolder
+
+    echo -e "${grayColour}Copying sxhkd configuration files in order to setup hotkeys...${endColour}"
+
+    cp -r "$CURRENT_DIR/config/sxhkd" "$target_home_config_dir"
+
+    echo -e "${greenColour} Hotkeys installed and configured with${endColour} ${cyanColour}[ sxhkd ]${endColour}"
+}
+
+function setupCustomTerminalFont() {
+    echo -e "${grayColour}Downloading HackNerdFont from${endColour} ${blueColour}https://github.com/ryanoasis/nerd-fonts${endColour}"
+   
+    local fonts_dir="$HOME/.fonts"
+    mkdir -p "$fonts_dir"
+    curl -sLo Hack.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v2.3.3/Hack.zip && unzip -oq Hack.zip -d "$fonts_dir" && rm Hack.zip
+
+    echo -e "${greenColour} Fonts installed and configured in${endColour} ${cyanColour}[ $fonts_dir ]${endColour}"
+}
+
+function setupAndConfigureKitty() {
+    echo -e "${grayColour}Installing and configuring kitty GPU based terminal...${endColour}"
+
+    local kitty_dir=/opt/kitty
+
+    curl -sLo kitty.txz "https://github.com/kovidgoyal/kitty/releases/download/v0.27.1/kitty-0.27.1-x86_64.txz"
+    sudo mkdir -p $kitty_dir && sudo tar -xf kitty.txz -C $kitty_dir && rm kitty.txz
+    sudo ln -s $kitty_dir/bin/kitty /usr/local/bin/kitty
+
+    cp -r "$CURRENT_DIR/config/kitty" "$target_home_config_dir"
+
+    echo -e "${greenColour} Kitty GPU based terminal installed and configured on${endColour} ${cyanColour}[ $(which kitty) ]${endColour}"
+}
+
 ###
 # START THE INSTALLATION AND CONFIGURATION PROCESS FOR THE NEW ENVIRONMENT
 ###
 setupHotkeys
 setupCustomTerminalFont
+setupAndConfigureKitty
