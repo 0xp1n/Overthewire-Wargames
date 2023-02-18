@@ -20,27 +20,68 @@ function showHelpPanel() {
 declare -i money=0
 declare -a techniques=("martingala" "reverseLaboucher")
 
+declare -i games_played=0
+declare -i total_wins=0
+declare -i total_loses=0
+
 function martingala() {
     bet=0
     even_or_odd=''
 
-    while [ "$bet" -eq 0 ]; do
+    while [ $((money - bet)) -le 0 ] || [ "$bet" -le 0 ]; do
         read -rp "¿De cuánto será la apuesta inicial? --> " bet
 
         if [ "$bet" -le 0 ]; then
             echo -e "${redColour}Apuestas negativas no están permitidas${endColour}"
         fi
+
+        if [ $((money - bet)) -le 0 ]; then
+            echo -e "${redColour}La apuesta de${endColour}${yellowColour} $bet €${endColour} ${redColour}es mayor que el saldo disponible${endColour} ${yellowColour}$money €${endColour}"
+        fi
     done
 
     while [ "$even_or_odd" != "p" ] && [ "$even_or_odd" != "i" ] ; do
-        read -rp "¿Apuestas al impar o par? [i]mpar [p]ar --> " even_or_odd
+        read -rp "¿Apuestas continuamente al impar o par? [i]mpar [p]ar --> " even_or_odd
     done
 
+    echo -ne "${yellowColour} Vas a utilizar una apuesta inicial de $bet € al $even_or_odd"
 
-    while true; do 
+    while [ "$money" -gt 0 ]; do 
+        ((money-="$bet"))
+
+        if [ $money -le 0 ]; then
+            echo -e "${redColour}Lo sentimos ya no puedes seguir apostando con la técnica martingala, tu dinero restante es de $((money+=bet)) €${endColour}"
+            break;
+        fi
+
+        ((games_played+=1))
+        echo -e "\nTienes $money € y tu apuesta actual es de $bet €"
+
         number=$((RANDOM % 37))
-        echo -e "${yellowColour}Ha sálido el número${endColour} ${greenColour}$number ${endColour}"
+        result='impar'
+
+        echo -e "${yellowColour}Ha salido el número $result ${endColour} ${greenColour}$number${endColour}"
+
+        if [ $((number % 2)) -eq  0 ]; then
+            result='par'
+        fi
+
+        if [ "$even_or_odd" = ${result:0:1} ]; then
+             ((money+=bet * 2))
+             echo -e "${greenColour}Has ganado esta ronda, se te ha reembolsado${endColour} ${yellowColour}$((bet * 2)) €${endColour}"
+            ((total_wins+=1))
+
+        else 
+            ((bet*=2))
+            echo -e "${redColour}Has perdido esta ronda, duplicando la apuesta a${endColour}${redColour} $bet €${endColour}"
+            ((total_loses+=1))
+        fi
+
     done
+
+    echo -e "Has jugado un total de $games_played veces\n"
+    echo -e "De los cuales has ganado $total_wins veces\n"
+    echo -e "Y has perdido $total_loses veces\n"
 }
 
 function reverseLaboucher() {
